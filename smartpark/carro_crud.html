@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento | Carros</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3;
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3;
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .card-header {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-primary:hover {
+      background-color: #003d80;
+      border-color: #003d80;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a></li>
+        <li class="nav-item"><a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a></li>
+        <li class="nav-item"><a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a></li>
+      </ul>
+    </div>
+  </nav>
+  <br><br>
+  <main role="main">
+    <div class="container">
+      <div class="card">
+        <h4 class="card-header"><strong>Listado de Carros</strong></h4>
+        <div class="card-body">
+          <a class="btn btn-primary" role="button" href="crear_carro.html">
+            <i class="fas fa-file" aria-hidden="true"></i> Nuevo Carro
+          </a>
+          <hr>
+          <table class="table table-hover">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Matrícula</th>
+                <th scope="col">Marca</th>
+                <th scope="col">Modelo</th>
+                <th scope="col">Año</th>
+                <th scope="col">Color</th>
+                <th scope="col">Usuario</th>
+                <th scope="col">Operaciones</th>
+              </tr>
+            </thead>
+            <tbody id="carTableBody">
+              <!-- Aquí se insertarán los datos de los carros -->
+            </tbody>
+          </table>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              <li class="page-item">
+                <a class="page-link" id="prevPage">Anterior</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" id="nextPage">Siguiente</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, query, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+      authDomain: "fir-ea1d1.firebaseapp.com",
+      projectId: "fir-ea1d1",
+      storageBucket: "fir-ea1d1.appspot.com",
+      messagingSenderId: "331266843487",
+      appId: "1:331266843487:web:23eee1dad745e84a404cea"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let lastVisible = null;
+    const pageSize = 5;
+
+    async function fetchCars(startAfterDoc = null) {
+      const carsCollection = collection(db, 'carros');
+      let carsQuery = query(carsCollection, limit(pageSize));
+
+      if (startAfterDoc) {
+        carsQuery = query(carsQuery, startAfter(startAfterDoc));
+      }
+
+      const carSnapshot = await getDocs(carsQuery);
+      const carList = carSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (carSnapshot.docs.length > 0) {
+        lastVisible = carSnapshot.docs[carSnapshot.docs.length - 1];
+      }
+
+      const tableBody = document.getElementById('carTableBody');
+      tableBody.innerHTML = '';
+      carList.forEach(car => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${car.id}</td>
+          <td>${car.matricula}</td>
+          <td>${car.marca}</td>
+          <td>${car.modelo}</td>
+          <td>${car.año}</td>
+          <td>${car.color}</td>
+          <td>${car.usuario}</td>
+          <td>
+            <button onclick="editCar('${car.id}')" class="btn btn-success btn-sm">Editar</button>
+            <button onclick="confirmDeleteCar('${car.id}')" class="btn btn-danger btn-sm">Eliminar</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    window.editCar = function(carId) {
+      window.location.href = `editar_carro.html?id=${carId}`;
+    };
+
+    window.confirmDeleteCar = async function(carId) {
+      if (confirm('¿Estás seguro de eliminar este carro?')) {
+        const carDoc = doc(db, 'carros', carId);
+        await deleteDoc(carDoc);
+        fetchCars();
+      }
+    };
+
+    document.getElementById('nextPage').addEventListener('click', () => fetchCars(lastVisible));
+    document.getElementById('prevPage').addEventListener('click', () => {
+      // Agrega lógica para manejar la paginación hacia atrás si es necesario
+    });
+
+    fetchCars();
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento - Crear Usuario</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3;
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3;
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+    .card-header {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-primary:hover {
+      background-color: #003d80;
+      border-color: #003d80;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+<main role="main">
+  <hr>
+  <div class="container">
+    <div class="card mb-5">
+      <h4 class="card-header"><strong>Crea un nuevo usuario</strong></h4>
+      <div class="card-body">
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="nombre">Nombre(s)</label>
+            <input type="text" class="form-control" id="nombre" placeholder="Nombre(s)" required>
+          </div>
+          <div class="form-group">
+            <label for="apellido-paterno">Apellido Paterno</label>
+            <input type="text" class="form-control" id="apellido-paterno" placeholder="Apellido Paterno" required>
+          </div>
+          <div class="form-group">
+            <label for="apellido-materno">Apellido Materno</label>
+            <input type="text" class="form-control" id="apellido-materno" placeholder="Apellido Materno" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <label for="foto">Foto</label>
+            <input type="file" class="form-control-file" id="foto" required>
+          </div>
+          <div class="form-group">
+            <label for="contraseña">Contraseña</label>
+            <input type="password" class="form-control" id="contraseña" placeholder="Contraseña" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmar-contraseña">Confirmar Contraseña</label>
+            <input type="password" class="form-control" id="confirmar-contraseña" placeholder="Confirmar Contraseña" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Crear Usuario</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-storage-compat.js"></script>
+
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+    authDomain: "fir-ea1d1.firebaseapp.com",
+    projectId: "fir-ea1d1",
+    storageBucket: "fir-ea1d1.appspot.com",
+    messagingSenderId: "331266843487",
+    appId: "1:331266843487:web:23eee1dad745e84a404cea"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  document.getElementById('registerForm').addEventListener('submit', registerUser);
+
+  async function registerUser(e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const apellidoPaterno = document.getElementById('apellido-paterno').value;
+    const apellidoMaterno = document.getElementById('apellido-materno').value;
+    const email = document.getElementById('email').value;
+    const foto = document.getElementById('foto').files[0];
+    const password = document.getElementById('contraseña').value;
+    const confirmPassword = document.getElementById('confirmar-contraseña').value;
+
+    if (password !== confirmPassword) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+
+    try {
+      // Create user with email and password
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      // Upload photo to Firebase Storage
+      const storageRef = storage.ref();
+      const fotoRef = storageRef.child('fotos/' + user.uid + '/' + foto.name);
+      await fotoRef.put(foto);
+      const fotoURL = await fotoRef.getDownloadURL();
+
+      // Save user info to Firestore
+      await db.collection('usuarios').doc(user.uid).set({
+        nombre: nombre,
+        apellidoPaterno: apellidoPaterno,
+        apellidoMaterno: apellidoMaterno,
+        email: email,
+        fotoURL: fotoURL
+      });
+
+      alert('Usuario registrado exitosamente');
+      document.getElementById('registerForm').reset();
+    } catch (error) {
+      console.error('Error al registrar el usuario:', error);
+      alert('Error al registrar el usuario: ' + error.message);
+    }
+  }
+</script>
+
+</body>
+</html>

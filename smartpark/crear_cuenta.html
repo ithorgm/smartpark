@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Cuenta</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <!-- Firebase App (base SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase Storage -->
+    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div id="contenedor">
+        <div id="contenedorcentrado">
+            <div id="login">
+                <form id="registerForm">
+                    <div class="form-group">
+                      <label for="nombre">Nombre(s)</label>
+                      <input type="text" class="form-control" id="nombre" placeholder="Nombre(s)" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="apellido-paterno">Apellido Paterno</label>
+                      <input type="text" class="form-control" id="apellido-paterno" placeholder="Apellido Paterno" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="apellido-materno">Apellido Materno</label>
+                      <input type="text" class="form-control" id="apellido-materno" placeholder="Apellido Materno" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="email">Email</label>
+                      <input type="email" class="form-control" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="foto">Foto</label>
+                      <input type="file" class="form-control-file" id="foto" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="contraseña">Contraseña</label>
+                      <input type="password" class="form-control" id="contraseña" placeholder="Contraseña" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="confirmar-contraseña">Confirmar Contraseña</label>
+                      <input type="password" class="form-control" id="confirmar-contraseña" placeholder="Confirmar Contraseña" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                  </form>
+            </div>
+            <div id="derecho">
+                <div class="titulo">Bienvenido</div>
+                <hr>
+                <div class="pie-form">
+                    <a href="#">¿Ya tienes una cuenta? Inicia Sesión</a>
+                    <hr>
+                    <a href="login.html">« Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+          authDomain: "fir-ea1d1.firebaseapp.com",
+          projectId: "fir-ea1d1",
+          storageBucket: "fir-ea1d1.appspot.com",
+          messagingSenderId: "331266843487",
+          appId: "1:331266843487:web:23eee1dad745e84a404cea"
+        };
+    
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+    
+        document.getElementById('registerForm').addEventListener('submit', registerUser);
+    
+        async function registerUser(e) {
+          e.preventDefault();
+    
+          const nombre = document.getElementById('nombre').value;
+          const apellidoPaterno = document.getElementById('apellido-paterno').value;
+          const apellidoMaterno = document.getElementById('apellido-materno').value;
+          const email = document.getElementById('email').value;
+          const foto = document.getElementById('foto').files[0];
+          const password = document.getElementById('contraseña').value;
+          const confirmPassword = document.getElementById('confirmar-contraseña').value;
+    
+          if (password !== confirmPassword) {
+            alert('Las contraseñas no coinciden');
+            return;
+          }
+    
+          try {
+            // Create user with email and password
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+    
+            // Upload photo to Firebase Storage
+            const storageRef = storage.ref();
+            const fotoRef = storageRef.child('fotos/' + user.uid + '/' + foto.name);
+            await fotoRef.put(foto);
+            const fotoURL = await fotoRef.getDownloadURL();
+    
+            // Save user info to Firestore
+            await db.collection('usuarios').doc(user.uid).set({
+              nombre: nombre,
+              apellidoPaterno: apellidoPaterno,
+              apellidoMaterno: apellidoMaterno,
+              email: email,
+              fotoURL: fotoURL
+            });
+    
+            alert('Usuario creado exitosamente');
+            document.getElementById('registerForm').reset();
+            window.location.href = 'index.html';
+          } catch (error) {
+            console.error('Error al registrar el usuario:', error);
+            alert('Error al registrar el usuario: ' + error.message);
+          }
+        }
+      </script>
+
+</body>
+</html>

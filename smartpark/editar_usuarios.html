@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB; /* Color azul cielo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em; /* Tamaño adecuado */
+      font-weight: bold; /* Letras resaltadas */
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+<br><br>
+  <main role="main">
+    <div class="container">
+      <div class="card">
+        <h4 class="card-header"><strong>Editar Usuario</strong></h4>
+        <div class="card-body">
+          <form id="editUserForm">
+            <div class="form-group">
+              <label for="nombre">Nombre(s)</label>
+              <input type="text" class="form-control" id="nombre" placeholder="Nombre(s)" required>
+            </div>
+            <div class="form-group">
+              <label for="apellidoPaterno">Apellido Paterno</label>
+              <input type="text" class="form-control" id="apellidoPaterno" placeholder="Apellido Paterno" required>
+            </div>
+            <div class="form-group">
+              <label for="apellidoMaterno">Apellido Materno</label>
+              <input type="text" class="form-control" id="apellidoMaterno" placeholder="Apellido Materno" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" placeholder="Email" required>
+            </div>
+            <input type="hidden" id="userId">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="usuarios_crud.html" class="btn btn-secondary">Cancelar</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+      authDomain: "fir-ea1d1.firebaseapp.com",
+      projectId: "fir-ea1d1",
+      storageBucket: "fir-ea1d1.appspot.com",
+      messagingSenderId: "331266843487",
+      appId: "1:331266843487:web:23eee1dad745e84a404cea"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadUserData(userId) {
+      const userDoc = doc(db, 'usuarios', userId);
+      const docSnap = await getDoc(userDoc);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        document.getElementById('nombre').value = userData.nombre;
+        document.getElementById('apellidoPaterno').value = userData.apellidoPaterno;
+        document.getElementById('apellidoMaterno').value = userData.apellidoMaterno;
+        document.getElementById('email').value = userData.email;
+        document.getElementById('userId').value = userId;
+      } else {
+        alert('No se encontró el usuario.');
+        window.location.href = 'usuarios_crud.html';
+      }
+    }
+
+    async function updateUser(userId, userData) {
+      const userDoc = doc(db, 'usuarios', userId);
+      await updateDoc(userDoc, userData);
+      alert('Usuario actualizado exitosamente.');
+      window.location.href = 'usuarios_crud.html';
+    }
+
+    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = document.getElementById('userId').value;
+      const userData = {
+        nombre: document.getElementById('nombre').value,
+        apellidoPaterno: document.getElementById('apellidoPaterno').value,
+        apellidoMaterno: document.getElementById('apellidoMaterno').value,
+        email: document.getElementById('email').value
+      };
+      await updateUser(userId, userData);
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+    if (userId) {
+      loadUserData(userId);
+    } else {
+      alert('ID de usuario no proporcionado.');
+      window.location.href = 'usuarios_crud.html';
+    }
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

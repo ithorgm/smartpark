@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartar Estacionamiento</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB; /* Color azul cielo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em; /* Tamaño adecuado */
+      font-weight: bold; /* Letras resaltadas */
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="index.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            
+            <li class="nav-item">
+              <a class="nav-link" href="apartar.html"> Apartar lugar</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="usuario_carro.html"> Añadir carro nuevo</a>
+            </li>
+      
+            
+          </ul>
+        </div>
+      </nav>
+  <br><br>
+  <main role="main" class="container">
+    <h4>Mis Carros</h4>
+    <div id="carList" class="mb-5"></div>
+    <h4>Apartar un lugar</h4>
+    <div class="card mb-5">
+      <div class="card-body">
+        <form id="reserveForm">
+          <div class="form-group">
+            <label for="car-select">Selecciona tu carro</label>
+            <select id="car-select" class="form-control" required></select>
+          </div>
+          <button type="submit" class="btn btn-primary">Apartar Lugar</button>
+        </form>
+      </div>
+    </div>
+    <h4>Bajar Carro</h4>
+    <div class="card mb-5">
+      <div class="card-body">
+        <button id="exitButton" class="btn btn-danger">Bajar Carro</button>
+      </div>
+    </div>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+      authDomain: "fir-ea1d1.firebaseapp.com",
+      projectId: "fir-ea1d1",
+      storageBucket: "fir-ea1d1.appspot.com",
+      messagingSenderId: "331266843487",
+      appId: "1:331266843487:web:23eee1dad745e84a404cea"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Función para cargar los carros del usuario
+    async function loadUserCars() {
+      const carList = document.getElementById('carList');
+      const carSelect = document.getElementById('car-select');
+      carList.innerHTML = '';
+      carSelect.innerHTML = '';
+      const user = auth.currentUser;
+
+      if (user) {
+        const snapshot = await db.collection('carros').where('usuario', '==', user.uid).get();
+        snapshot.forEach(doc => {
+          const car = doc.data();
+          const carItem = document.createElement('div');
+          carItem.classList.add('card', 'mb-3');
+          carItem.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title">${car.marca} ${car.modelo}</h5>
+              <p class="card-text">Color: ${car.color}</p>
+              <p class="card-text">Matrícula: ${car.matricula}</p>
+              <p class="card-text">Año: ${car.año}</p>
+            </div>
+          `;
+          carList.appendChild(carItem);
+
+          const option = document.createElement('option');
+          option.value = `${car.marca} ${car.modelo} (${car.matricula})`;
+          option.innerText = `${car.marca} ${car.modelo} (${car.matricula})`;
+          carSelect.appendChild(option);
+        });
+      }
+    }
+
+    // Función para agregar una entrada
+    document.getElementById('reserveForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const selectedCar = document.getElementById('car-select').value;
+      const user = auth.currentUser;
+
+      if (user) {
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        const userData = userDoc.data();
+        if (userData && userData.estacionamiento) {
+          const estacionamientoDoc = await db.collection('estacionamientos').doc(userData.estacionamiento).get();
+          const estacionamientoData = estacionamientoDoc.data();
+          if (estacionamientoData) {
+            const timestamp = new Date();
+            await db.collection('entradas').add({
+              nombreUsuario: userData.nombre,
+              carro: selectedCar,
+              horaEntrada: timestamp,
+              estacionamiento: estacionamientoData.nombre
+            });
+            alert('Lugar apartado exitosamente');
+          } else {
+            alert('Error: No se encontró el estacionamiento.');
+          }
+        } else {
+          alert('Error: No se encontró el estacionamiento del usuario.');
+        }
+      } else {
+        alert('Debes iniciar sesión para apartar un lugar');
+      }
+    });
+
+    // Función para registrar una salida
+    document.getElementById('exitButton').addEventListener('click', async () => {
+      const user = auth.currentUser;
+
+      if (user) {
+        const userDoc = await db.collection('usuarios').doc(user.uid).get();
+        const userData = userDoc.data();
+        if (userData && userData.estacionamiento) {
+          const snapshot = await db.collection('entradas').where('nombreUsuario', '==', userData.nombre).get();
+          if (!snapshot.empty) {
+            const entradaDoc = snapshot.docs[0];
+            const entradaData = entradaDoc.data();
+            const timestamp = new Date();
+            await db.collection('salidas').add({
+              nombreUsuario: userData.nombre,
+              carro: entradaData.carro,
+              horaSalida: timestamp,
+              estacionamiento: entradaData.estacionamiento
+            });
+            alert('Salida registrada exitosamente');
+          } else {
+            alert('No se encontró una entrada previa para este usuario');
+          }
+        } else {
+          alert('Error: No se encontró el estacionamiento del usuario.');
+        }
+      } else {
+        alert('Debes iniciar sesión para registrar la salida');
+      }
+    });
+
+    // Cargar los carros del usuario al iniciar sesión
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        loadUserCars();
+      } else {
+        window.location.href = 'login.html'; // Redirigir a la página de login si no está autenticado
+      }
+    });
+  </script>
+</body>
+</html>

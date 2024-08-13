@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento - Editar Carro</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3;
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3;
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .card-header {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-primary:hover {
+      background-color: #003d80;
+      border-color: #003d80;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a></li>
+        <li class="nav-item"><a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a></li>
+        <li class="nav-item"><a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a></li>
+      </ul>
+    </div>
+  </nav>
+  <br><br>
+  <main role="main">
+    <div class="container">
+      <div class="card mb-5">
+        <h4 class="card-header"><strong>Editar Carro</strong></h4>
+        <div class="card-body">
+          <form id="editCarForm">
+            <input type="hidden" id="carId">
+            <div class="form-group">
+              <label for="marca">Marca</label>
+              <input type="text" class="form-control" id="marca" placeholder="Marca" required>
+            </div>
+            <div class="form-group">
+              <label for="modelo">Modelo</label>
+              <input type="text" class="form-control" id="modelo" placeholder="Modelo" required>
+            </div>
+            <div class="form-group">
+              <label for="color">Color</label>
+              <input type="text" class="form-control" id="color" placeholder="Color" required>
+            </div>
+            <div class="form-group">
+              <label for="matricula">Matrícula</label>
+              <input type="text" class="form-control" id="matricula" placeholder="Matrícula" required>
+            </div>
+            <div class="form-group">
+              <label for="año">Año</label>
+              <input type="number" class="form-control" id="año" placeholder="Año" required>
+            </div>
+            <div class="form-group">
+              <label for="usuario">Usuario</label>
+              <select class="form-control" id="usuario" required>
+                <!-- Aquí se cargarán los usuarios -->
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Carro</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+      authDomain: "fir-ea1d1.firebaseapp.com",
+      projectId: "fir-ea1d1",
+      storageBucket: "fir-ea1d1.appspot.com",
+      messagingSenderId: "331266843487",
+      appId: "1:331266843487:web:23eee1dad745e84a404cea"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Cargar datos del carro en el formulario
+    async function loadCarData(carId) {
+      const carDoc = await db.collection('carros').doc(carId).get();
+      if (carDoc.exists) {
+        const car = carDoc.data();
+        document.getElementById('carId').value = carId;
+        document.getElementById('marca').value = car.marca;
+        document.getElementById('modelo').value = car.modelo;
+        document.getElementById('color').value = car.color;
+        document.getElementById('matricula').value = car.matricula;
+        document.getElementById('año').value = car.año;
+        document.getElementById('usuario').value = car.usuario;
+      } else {
+        alert('Carro no encontrado');
+      }
+    }
+
+    // Función para cargar los usuarios en el select
+    async function loadUsers() {
+      const userSelect = document.getElementById('usuario');
+      const snapshot = await db.collection('usuarios').get();
+      snapshot.forEach(doc => {
+        const user = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = `${user.nombre} ${user.apellidoPaterno} ${user.apellidoMaterno}`;
+        userSelect.appendChild(option);
+      });
+    }
+
+    // Evento para enviar el formulario
+    document.getElementById('editCarForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const carId = document.getElementById('carId').value;
+      const marca = document.getElementById('marca').value;
+      const modelo = document.getElementById('modelo').value;
+      const color = document.getElementById('color').value;
+      const matricula = document.getElementById('matricula').value;
+      const año = document.getElementById('año').value;
+      const usuario = document.getElementById('usuario').value;
+
+      await db.collection('carros').doc(carId).update({
+        marca, modelo, color, matricula, año, usuario
+      });
+      alert('Carro actualizado exitosamente');
+      window.location.href = 'carro_crud.html';
+    });
+
+    // Obtén el ID del carro desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const carId = urlParams.get('id');
+    if (carId) {
+      loadCarData(carId);
+    } else {
+      alert('ID del carro no especificado');
+    }
+
+    // Llama a loadUsers() para llenar el select cuando la página se cargue
+    document.addEventListener('DOMContentLoaded', loadUsers);
+  </script>
+</body>
+</html>

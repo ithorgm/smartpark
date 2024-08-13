@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento | Usuarios</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB; /* Color azul cielo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em; /* Tamaño adecuado */
+      font-weight: bold; /* Letras resaltadas */
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+<main role="main">
+  <hr>
+  <div class="container">
+    <div class="card">
+      <h4 class="card-header"><strong>Listado de Usuarios</strong></h4>
+      <div class="card-body">
+        <a class="btn btn-primary" role="button" href="crear_usuarios.html">
+          <i class="fas fa-file" aria-hidden="true"></i> Nuevo Usuario
+        </a>
+        <hr>
+        <table class="table table-hover">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Nombre(s)</th>
+              <th scope="col">Apellido Paterno</th>
+              <th scope="col">Apellido Materno</th>
+              <th scope="col">Email</th>
+              <th scope="col">Operaciones</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <!-- Aquí se insertarán los datos de los usuarios -->
+          </tbody>
+        </table>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+            <li class="page-item">
+              <a class="page-link" id="prevPage">Anterior</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" id="nextPage">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar este usuario?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" id="confirmDeleteButton" class="btn btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc, query, limit, startAfter, endBefore } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+    authDomain: "fir-ea1d1.firebaseapp.com",
+    projectId: "fir-ea1d1",
+    storageBucket: "fir-ea1d1.appspot.com",
+    messagingSenderId: "331266843487",
+    appId: "1:331266843487:web:23eee1dad745e84a404cea"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let lastVisible = null;
+  let firstVisible = null;
+  let userToDelete = null;
+  const pageSize = 5;
+
+  async function fetchUsers(startAfterDoc = null, endBeforeDoc = null) {
+    const usersCollection = collection(db, 'usuarios');
+    let usersQuery = query(usersCollection, limit(pageSize));
+
+    if (startAfterDoc) {
+      usersQuery = query(usersQuery, startAfter(startAfterDoc));
+    }
+
+    if (endBeforeDoc) {
+      usersQuery = query(usersQuery, endBefore(endBeforeDoc));
+    }
+
+    try {
+      const userSnapshot = await getDocs(usersQuery);
+      const userList = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (userSnapshot.docs.length > 0) {
+        lastVisible = userSnapshot.docs[userSnapshot.docs.length - 1];
+        firstVisible = userSnapshot.docs[0];
+      }
+
+      const tableBody = document.getElementById('userTableBody');
+      tableBody.innerHTML = '';
+      userList.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.id}</td>
+          <td>${user.nombre}</td>
+          <td>${user.apellidoPaterno}</td>
+          <td>${user.apellidoMaterno}</td>
+          <td>${user.email}</td>
+          <td>
+            <a href="editar_usuarios.html?id=${user.id}" class="btn btn-success btn-sm">Editar</a>
+            <button onclick="confirmDelete('${user.id}')" class="btn btn-danger btn-sm">Eliminar</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  }
+
+  async function deleteUser(userId) {
+    try {
+      const userDoc = doc(db, 'usuarios', userId);
+      await deleteDoc(userDoc);
+      $('#confirmDeleteModal').modal('hide');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  }
+
+  window.confirmDelete = function(userId) {
+    userToDelete = userId;
+    $('#confirmDeleteModal').modal('show');
+  }
+
+  document.getElementById('confirmDeleteButton').addEventListener('click', () => {
+    if (userToDelete) {
+      deleteUser(userToDelete);
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => fetchUsers(lastVisible));
+  document.getElementById('prevPage').addEventListener('click', () => fetchUsers(null, firstVisible));
+
+  fetchUsers();
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

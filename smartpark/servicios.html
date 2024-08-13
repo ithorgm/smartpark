@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .navbar {
+      background-color: #87CEEB;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3;
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3;
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+    .footer {
+      background-color: #343a40;
+      color: white;
+      padding: 20px 0;
+    }
+    .footer a {
+      color: #87CEEB;
+    }
+    .footer a:hover {
+      color: #0056b3;
+    }
+    .carousel-item img {
+      width: 100%;
+      height: 500px;
+      object-fit: cover;
+    }
+    .highlight {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    .highlight img {
+      width: 100%;
+      height: auto;
+      max-width: 300px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .highlight div {
+      flex: 1;
+      padding-left: 15px;
+    }
+    .contact-container {
+      background-color: white;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" href="index.html">⇚</a>
+        <a class="navbar-brand" href="index.html"> SECURE SIHININE</a>
+        
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nosotros.html">Nosotros</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="servicios.html">Servicios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">Iniciar Sesión</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+<br><br>
+
+<div class="container">
+    <div class="highlight">
+        <img src="imagenes/mantenimiento-predictivo-1.jpg" alt="Automatización de Casas" class="img-fluid">
+        <div>
+            <h2>Automatización de Casas</h2>
+            <p>Instalación y mantenimiento de sistemas de iluminación, climatización, seguridad y electrodomésticos automatizados.</p>
+            <p>Nuestro equipo garantiza el máximo rendimiento y durabilidad de los sistemas instalados.</p>
+        </div>
+    </div>
+
+    <div class="highlight">
+        <img src="imagenes/cursodecctv-1024x576-1-300x169.jpg" alt="Servicios de Seguridad" class="img-fluid">
+        <div>
+            <h2>Servicios de Seguridad</h2>
+            <p>Implementación y mantenimiento de sistemas de vigilancia, control de acceso y alarmas de seguridad.</p>
+            <p>Ofrecemos soluciones personalizadas y soporte continuo para garantizar la seguridad efectiva.</p>
+        </div>
+    </div>
+
+    <div class="highlight">
+        <img src="imagenes/bosch-y-mercedes-benz-presentan-estacionamiento-automatizado-12201.jpg" alt="Automatización de Estacionamientos" class="img-fluid">
+        <div>
+            <h2>Automatización de Estacionamientos</h2>
+            <p>Instalación y mantenimiento de sistemas mecanizados para la optimización del espacio y la gestión eficiente de estacionamientos verticales y tradicionales.</p>
+            <p>Proporcionamos soluciones avanzadas para una gestión eficiente de espacios de estacionamiento.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container contact-container text-center">
+    <h2>Agenda tu cita</h2>
+    <p><i class="fas fa-map-marker-alt"></i> Dirección: Av. Insurgentes Sur 123, Colonia Roma, Ciudad de México</p>
+    <p><i class="fas fa-phone"></i> Teléfono: +52 55 1234 5678</p>
+    <p><i class="fas fa-envelope"></i> Email: citas@tuservicio.com</p>
+</div>
+
+<footer class="p-3" style="margin-top: 100px; background-color: black;">
+  <div class="container">
+    <br><br><br><br>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

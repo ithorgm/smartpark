@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración de Cuenta</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .navbar {
+    background-color: #87CEEB;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .navbar-brand {
+    font-size: 1.8em;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  .navbar-brand:hover {
+    color: #0056b3;
+  }
+  .nav-link {
+    font-size: 1.2em;
+    transition: color 0.3s;
+  }
+  .nav-link:hover {
+    color: #0056b3;
+  }
+  .navbar-nav .nav-item {
+    margin-left: 20px;
+  }
+    .container {
+      margin-top: 50px;
+    }
+    .card {
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
+      padding: 1.5rem;
+    }
+    .form-control-file {
+      margin-top: 10px;
+    }
+    .footer {
+      background-color: #343a40;
+      color: white;
+      padding: 20px 0;
+    }
+    .footer a {
+      color: #87CEEB;
+    }
+    .footer a:hover {
+      color: #0056b3;
+    }
+  </style>
+
+
+
+
+  <!-- Firebase App (base SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app-compat.js"></script>
+  <!-- Firebase Authentication -->
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase Storage -->
+  <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-storage-compat.js"></script>
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+        authDomain: "fir-ea1d1.firebaseapp.com",
+        projectId: "fir-ea1d1",
+        storageBucket: "fir-ea1d1.appspot.com",
+        messagingSenderId: "331266843487",
+        appId: "1:331266843487:web:23eee1dad745e84a404cea"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      const storage = firebase.storage();
+
+      // Check auth state and populate form
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          db.collection('usuarios').doc(user.uid).get().then(doc => {
+            if (doc.exists) {
+              const userData = doc.data();
+              document.getElementById('nombre').value = userData.nombre;
+              document.getElementById('apellidoPaterno').value = userData.apellidoPaterno;
+              document.getElementById('apellidoMaterno').value = userData.apellidoMaterno;
+              document.getElementById('email').value = userData.email;
+              document.getElementById('userPhoto').src = userData.fotoURL;
+              document.getElementById('userName').innerText = userData.nombre;
+            } else {
+              alert("No se encontraron datos de usuario.");
+            }
+          }).catch(error => {
+            console.error("Error al obtener los datos del usuario: ", error);
+          });
+        } else {
+          window.location.href = 'login.html'; // Redirect to login if not logged in
+        }
+      });
+
+      // Handle form submission
+      document.getElementById('updateForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (user) {
+          const userData = {
+            nombre: document.getElementById('nombre').value,
+            apellidoPaterno: document.getElementById('apellidoPaterno').value,
+            apellidoMaterno: document.getElementById('apellidoMaterno').value,
+            email: document.getElementById('email').value
+          };
+          db.collection('usuarios').doc(user.uid).set(userData)
+            .then(() => {
+              alert("Datos actualizados correctamente.");
+            })
+            .catch(error => {
+              console.error("Error al actualizar los datos del usuario: ", error);
+            });
+        }
+      });
+
+      // Handle photo upload
+      document.getElementById('updatePhotoForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const file = document.getElementById('photoInput').files[0];
+        if (file) {
+          const storageRef = storage.ref();
+          const userPhotoRef = storageRef.child('user_photos/' + auth.currentUser.uid);
+          userPhotoRef.put(file).then(snapshot => {
+            snapshot.ref.getDownloadURL().then(url => {
+              db.collection('usuarios').doc(auth.currentUser.uid).update({
+                fotoURL: url
+              }).then(() => {
+                document.getElementById('userPhoto').src = url;
+                alert('Foto de usuario actualizada con éxito');
+              }).catch(error => {
+                console.error("Error al actualizar la foto del usuario: ", error);
+              });
+            }).catch(error => {
+              console.error("Error al obtener la URL de descarga: ", error);
+            });
+          }).catch(error => {
+            console.error("Error al subir la foto: ", error);
+          });
+        } else {
+          alert('Por favor, selecciona una foto para subir.');
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+
+
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="index.html">⇚</a>
+    <a class="navbar-brand" href="index.html"> SECURE SIHININE</a>
+    
+  </nav>
+
+  <div class="container">
+    <h2>Configuración de Cuenta</h2>
+    <div class="card">
+      <div class="row">
+        <div class="col-md-4">
+          <img id="userPhoto" src="imagenes/default-user.png" class="img-fluid rounded-circle" alt="Foto de usuario">
+        </div>
+        <div class="col-md-8">
+          <h4 id="userName"></h4>
+          <form id="updatePhotoForm">
+            <div class="form-group">
+              <label for="photoInput">Cambiar foto de perfil</label>
+              <input type="file" class="form-control-file" id="photoInput" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar Foto</button>
+          </form>
+        </div>
+      </div>
+      <form id="updateForm">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" class="form-control" id="nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="apellidoPaterno">Apellido Paterno</label>
+          <input type="text" class="form-control" id="apellidoPaterno" required>
+        </div>
+        <div class="form-group">
+          <label for="apellidoMaterno">Apellido Materno</label>
+          <input type="text" class="form-control" id="apellidoMaterno" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" class="form-control" id="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </form>
+    </div>
+  </div>
+
+
+ 
+  <footer class="p-3" style="margin-top: 100px; background-color: black;">
+    <div class="container">
+      <br><br><br><br>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

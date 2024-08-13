@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estacionamiento</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB; /* Color azul cielo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em; /* Tamaño adecuado */
+      font-weight: bold; /* Letras resaltadas */
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<br><br>
+<main role="main">
+  <div class="container">
+    <div class="card">
+      <h4 class="card-header"><strong>Listado de Solicitudes</strong></h4>
+      <div class="card-body">
+        <table class="table table-hover">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Nombre Usuario</th>
+              <th scope="col">Hora Entrada</th>
+              <th scope="col">Hora Salida</th>
+              <th scope="col">Estacionamiento</th>
+              <th scope="col">Carro</th>
+            </tr>
+          </thead>
+          <tbody id="solicitudesTableBody">
+            <!-- Aquí se insertarán los datos de las solicitudes -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+    authDomain: "fir-ea1d1.firebaseapp.com",
+    projectId: "fir-ea1d1",
+    storageBucket: "fir-ea1d1.appspot.com",
+    messagingSenderId: "331266843487",
+    appId: "1:331266843487:web:23eee1dad745e84a404cea"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function fetchSolicitudes() {
+    const entradasCollection = collection(db, 'entradas');
+    const salidasCollection = collection(db, 'salidas');
+
+    const entradaSnapshot = await getDocs(entradasCollection);
+    const salidaSnapshot = await getDocs(salidasCollection);
+
+    const entradas = entradaSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const salidas = salidaSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    const solicitudes = entradas.map(entrada => {
+      const salida = salidas.find(s => s.carro === entrada.carro && s.estacionamiento === entrada.estacionamiento && s.nombreUsuario === entrada.nombreUsuario);
+      return {
+        nombreUsuario: entrada.nombreUsuario,
+        horaEntrada: entrada.horaEntrada.toDate().toLocaleString(),
+        horaSalida: salida ? salida.horaSalida.toDate().toLocaleString() : 'No registrada',
+        estacionamiento: entrada.estacionamiento,
+        carro: entrada.carro
+      };
+    });
+
+    const tableBody = document.getElementById('solicitudesTableBody');
+    tableBody.innerHTML = '';
+    solicitudes.forEach(solicitud => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${solicitud.nombreUsuario}</td>
+        <td>${solicitud.horaEntrada}</td>
+        <td>${solicitud.horaSalida}</td>
+        <td>${solicitud.estacionamiento}</td>
+        <td>${solicitud.carro}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  fetchSolicitudes();
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

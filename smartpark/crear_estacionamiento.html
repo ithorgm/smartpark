@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agregar Estacionamiento</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3;
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3;
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .card-header {
+      background-color: #87CEEB;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-primary:hover {
+      background-color: #003d80;
+      border-color: #003d80;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="inicio_crud.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="usuarios_crud.html"><i class="fas fa-user"></i> Usuarios</a></li>
+        <li class="nav-item"><a class="nav-link" href="carro_crud.html"><i class="fas fa-car"></i> Carros</a></li>
+        <li class="nav-item"><a class="nav-link" href="EntradasSalidas_crud.html"><i class="fas fa-sign-in-alt"></i> Entradas y Salidas</a></li>
+        <li class="nav-item"><a class="nav-link" href="estacionamiento_crud.html"><i class="fas fa-parking"></i> Estacionamientos</a></li>
+      </ul>
+    </div>
+  </nav>
+  <br><br>
+  <main role="main">
+    <div class="container">
+      <div class="card mb-5">
+        <h4 class="card-header"><strong>Agrega un nuevo estacionamiento</strong></h4>
+        <div class="card-body">
+          <form id="createEstacionamientoForm">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+            </div>
+            <div class="form-group">
+              <label for="codigoPostal">Código postal</label>
+              <input type="text" class="form-control" id="codigoPostal" placeholder="Código Postal" required>
+            </div>
+            <div class="form-group">
+              <label for="ciudad">Ciudad</label>
+              <input type="text" class="form-control" id="ciudad" placeholder="Ciudad" required>
+            </div>
+            <div class="form-group">
+              <label for="estado">Estado</label>
+              <input type="text" class="form-control" id="estado" placeholder="Estado" required>
+            </div>
+            <div class="form-group">
+              <label for="calle">Calle</label>
+              <input type="text" class="form-control" id="calle" placeholder="Calle" required>
+            </div>
+            <div class="form-group">
+              <label for="numero">Número</label>
+              <input type="text" class="form-control" id="numero" placeholder="Número" required>
+            </div>
+            <div class="form-group">
+              <label for="lugaresTotales">Lugares totales</label>
+              <input type="number" class="form-control" id="lugaresTotales" placeholder="Lugares totales" required>
+            </div>
+            <div class="form-group">
+              <label for="lugaresLibres">Lugares libres</label>
+              <input type="number" class="form-control" id="lugaresLibres" placeholder="Lugares libres" required>
+            </div>
+            <div class="form-group">
+              <label for="lugaresOcupados">Lugares ocupados</label>
+              <input type="number" class="form-control" id="lugaresOcupados" placeholder="Lugares ocupados" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar Estacionamiento</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+      authDomain: "fir-ea1d1.firebaseapp.com",
+      projectId: "fir-ea1d1",
+      storageBucket: "fir-ea1d1.appspot.com",
+      messagingSenderId: "331266843487",
+      appId: "1:331266843487:web:23eee1dad745e84a404cea"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Evento para enviar el formulario
+    document.getElementById('createEstacionamientoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('nombre').value;
+      const codigoPostal = document.getElementById('codigoPostal').value;
+      const ciudad = document.getElementById('ciudad').value;
+      const estado = document.getElementById('estado').value;
+      const calle = document.getElementById('calle').value;
+      const numero = document.getElementById('numero').value;
+      const lugaresTotales = document.getElementById('lugaresTotales').value;
+      const lugaresLibres = document.getElementById('lugaresLibres').value;
+      const lugaresOcupados = document.getElementById('lugaresOcupados').value;
+
+      await db.collection('estacionamientos').add({
+        nombre,
+        codigoPostal,
+        ciudad,
+        estado,
+        calle,
+        numero,
+        lugaresTotales,
+        lugaresLibres,
+        lugaresOcupados
+      });
+      alert('Estacionamiento creado exitosamente');
+      document.getElementById('createEstacionamientoForm').reset();
+      window.location.href = 'estacionamiento_crud.html';
+    });
+  </script>
+</body>
+</html>

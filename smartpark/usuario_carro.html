@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Carros</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <style>
+    .navbar {
+      background-color: #87CEEB; /* Color azul cielo */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-size: 1.8em; /* Tamaño adecuado */
+      font-weight: bold; /* Letras resaltadas */
+      transition: color 0.3s;
+    }
+    .navbar-brand:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .nav-link {
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    .nav-link:hover {
+      color: #0056b3; /* Cambiar color al pasar el ratón */
+    }
+    .navbar-nav .nav-item {
+      margin-left: 20px;
+    }
+    .container h2 {
+      margin-top: 50px;
+      position: relative;
+      display: inline-block;
+    }
+    .container h2:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -10px;
+      width: 50px;
+      height: 3px;
+      background-color: #0056b3;
+    }
+    .container p {
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <a class="navbar-brand" href="index.html"><i class="fas fa-parking"></i> Estacionamiento</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+  </nav>
+  <br><br>
+  <main role="main" class="container">
+    <h4>Agregar un nuevo carro</h4>
+    <div class="card mb-5">
+      <div class="card-body">
+        <form id="addCarForm">
+          <div class="form-group">
+            <label for="marca">Marca</label>
+            <input type="text" class="form-control" id="marca" placeholder="Marca" required>
+          </div>
+          <div class="form-group">
+            <label for="modelo">Modelo</label>
+            <input type="text" class="form-control" id="modelo" placeholder="Modelo" required>
+          </div>
+          <div class="form-group">
+            <label for="color">Color</label>
+            <input type="text" class="form-control" id="color" placeholder="Color" required>
+          </div>
+          <div class="form-group">
+            <label for="matricula">Matrícula</label>
+            <input type="text" class="form-control" id="matricula" placeholder="Matrícula" required>
+          </div>
+          <div class="form-group">
+            <label for="año">Año</label>
+            <input type="number" class="form-control" id="año" placeholder="Año" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Agregar Carro</button>
+        </form>
+      </div>
+    </div>
+    <h4>Mis Carros</h4>
+    <div id="carList" class="mb-5"></div>
+
+    <div style="text-align: center;">
+      <!-- Botón con Bootstrap -->
+      <a href="estacionamiento.html" class="btn btn-primary btn-lg">Atras</a>
+  </div>
+
+  <br><br>
+  </main>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore-compat.js"></script>
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+          apiKey: "AIzaSyAzApEzKDjMMlOAocQ6FxMgIYlH92RF4oo",
+          authDomain: "fir-ea1d1.firebaseapp.com",
+          projectId: "fir-ea1d1",
+          storageBucket: "fir-ea1d1.appspot.com",
+          messagingSenderId: "331266843487",
+          appId: "1:331266843487:web:23eee1dad745e84a404cea"
+      };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Función para agregar un carro
+    document.getElementById('addCarForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const marca = document.getElementById('marca').value;
+      const modelo = document.getElementById('modelo').value;
+      const color = document.getElementById('color').value;
+      const matricula = document.getElementById('matricula').value;
+      const año = document.getElementById('año').value;
+      const user = auth.currentUser;
+
+      if (user) {
+        await db.collection('carros').add({
+          marca, modelo, color, matricula, año, usuario: user.uid
+        });
+        alert('Carro agregado exitosamente');
+        document.getElementById('addCarForm').reset();
+        loadUserCars();
+      } else {
+        alert('Debes iniciar sesión para agregar un carro');
+      }
+    });
+
+    // Función para cargar los carros del usuario
+    async function loadUserCars() {
+      const carList = document.getElementById('carList');
+      carList.innerHTML = '';
+      const user = auth.currentUser;
+
+      if (user) {
+        const snapshot = await db.collection('carros').where('usuario', '==', user.uid).get();
+        snapshot.forEach(doc => {
+          const car = doc.data();
+          const carItem = document.createElement('div');
+          carItem.classList.add('card', 'mb-3');
+          carItem.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title">${car.marca} ${car.modelo}</h5>
+              <p class="card-text">Color: ${car.color}</p>
+              <p class="card-text">Matrícula: ${car.matricula}</p>
+              <p class="card-text">Año: ${car.año}</p>
+            </div>
+          `;
+          carList.appendChild(carItem);
+        });
+      }
+    }
+
+    // Cargar los carros del usuario al iniciar sesión
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        loadUserCars();
+      } else {
+        window.location.href = 'login.html'; // Redirigir a la página de login si no está autenticado
+      }
+    });
+  </script>
+</body>
+</html>
